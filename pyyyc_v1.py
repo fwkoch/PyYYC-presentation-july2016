@@ -45,8 +45,20 @@ class PyYYCPresentation(object):
         self.time_limit = value
 
     def set_nslides(self, value):
+        if not isinstance(value, int):
+            raise ValueError('{}: nslides must be int'.format(value))
+        self.nslides = value
 
     def set_slide_color(self, value):
+        if value == 'red':
+            value = [255, 0, 0]
+        if value == 'green':
+            value = [0, 255, 0]
+        if value == 'blue':
+            value = [0, 0, 255]
+        if not isinstance(value, (list, tuple)) or not len(value) == 3:
+            raise ValueError('{}: slide_color must be rgb color'.format(value))
+        self.slide_color = value
 
 
     def summarize(self):
