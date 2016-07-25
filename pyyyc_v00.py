@@ -28,10 +28,10 @@ class PyYYCPresentation(object):
         self.slide_color = slide_color
 
     def summarize(self):
-        """Print a short description of the presentation. Usefull for
+        """Print a short description of the presentation. Useful for
         press junkets.
         """
-        print('{name} talking about {topic}.'.format(
+        print('Pythonista {name} talking about {topic}.'.format(
             name=self.presenter,
             topic=self.topic
         ))

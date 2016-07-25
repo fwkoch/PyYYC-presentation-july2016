@@ -23,33 +23,58 @@ class PyYYCPresentation(object):
     """
 
     def __init__(self, presenter, topic, time_limit, nslides, slide_color):
-        self.set_presenter(presenter)
-        self.set_topic(topic)
-        self.set_time_limit(time_limit)
-        self.set_nslides(nslides)
-        self.set_slide_color(slide_color)
+        self.presenter = presenter
+        self.topic = topic
+        self.time_limit = time_limit
+        self.nslides = nslides
+        self.slide_color = slide_color
 
-    def set_presenter(self, value):
+    @property
+    def presenter(self):
+        return self._presenter
+
+    @presenter.setter
+    def presenter(self, value):
         if not isinstance(value, string_types):
             raise ValueError('{}: presenter must be string'.format(value))
-        self.presenter = value
+        self._presenter = value
 
-    def set_topic(self, value):
+    @property
+    def topic(self):
+        return self._topic
+
+    @topic.setter
+    def topic(self, value):
         if not isinstance(value, string_types):
             raise ValueError('{}: topic must be string'.format(value))
-        self.topic = value
+        self._topic = value
 
-    def set_time_limit(self, value):
+    @property
+    def time_limit(self):
+        return self._time_limit
+
+    @time_limit.setter
+    def time_limit(self, value):
         if not isinstance(value, float):
             raise ValueError('{}: time_limit must be float'.format(value))
-        self.time_limit = value
+        self._time_limit = value
 
-    def set_nslides(self, value):
+    @property
+    def nslides(self):
+        return self._nslides
+
+    @nslides.setter
+    def nslides(self, value):
         if not isinstance(value, int):
             raise ValueError('{}: nslides must be int'.format(value))
-        self.nslides = value
+        self._nslides = value
 
-    def set_slide_color(self, value):
+    @property
+    def slide_color(self):
+        return self._slide_color
+
+    @slide_color.setter
+    def slide_color(self, value):
         if value == 'red':
             value = [255, 0, 0]
         if value == 'green':
@@ -58,14 +83,13 @@ class PyYYCPresentation(object):
             value = [0, 0, 255]
         if not isinstance(value, (list, tuple)) or not len(value) == 3:
             raise ValueError('{}: slide_color must be rgb color'.format(value))
-        self.slide_color = value
-
+        self._slide_color = value
 
     def summarize(self):
-        """Print a short description of the presentation. Usefull for
+        """Print a short description of the presentation. Useful for
         press junkets.
         """
-        print('{name} talking about {topic}.'.format(
+        print('Pythonista {name} talking about {topic}.'.format(
             name=self.presenter,
             topic=self.topic
         ))
