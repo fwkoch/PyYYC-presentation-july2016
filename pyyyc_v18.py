@@ -32,7 +32,7 @@ class Slide(properties.PropertyClass):
         default='Python!'
     )
     slide_color = properties.Color(
-        'Color of the slides'
+        'Color of the slides',
         default='white'
     )
 
@@ -51,7 +51,7 @@ class PyYYCPresentation(properties.PropertyClass):
 
     presenter = properties.Pointer(
         'Presenter info',
-        pytpe=Person,
+        ptype=Person,
         required=True
     )
     topic = properties.String(
@@ -73,14 +73,14 @@ class PyYYCPresentation(properties.PropertyClass):
         press junkets.
         """
         print('Pythonista {name} talking about {topic}.'.format(
-            name=self.presenter,
+            name=self.presenter.name,
             topic=self.topic
         ))
 
     def cliff_notes(self):
         """Print a long description of the presentation. """
         self.summarize()
-        for i, slide in enumerate(slides):
+        for i, slide in enumerate(self.slides):
             print('Slide {num}: {topic}'.format(
                 num=i,
                 topic=slide.topic

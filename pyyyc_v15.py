@@ -136,14 +136,6 @@ class PyYYCPresentation(WithSpecialProps):
     This class contains info about basic presentations at the
     PyYYC meetup. It generates some really useful summary info
     about the presentation.
-
-    Properties:
-        presenter   - Name of the presenter
-        topic       - Brief explanation of the topic
-        time_limit  - Time limit of the presentation
-        nslides     - Number of slides (because all presentations
-                      have slides!)
-        slide_color - RGB color of all the slides
     """
 
     presenter = StrProp('Name of the presenter')
