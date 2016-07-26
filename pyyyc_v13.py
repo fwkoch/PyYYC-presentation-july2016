@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 
 from builtins import super
 from six import string_types
-from future.utils import with_metaclass
+from six import with_metaclass
 
 
 class SpecialProp(object):
@@ -16,7 +16,8 @@ class SpecialProp(object):
             return getattr(self, '_' + scope.name, None)
         def fset(self, value):
             value = scope.confirm(value)
-            return setattr(self, '_' + scope.name)
+            setattr(self, '_' + scope.name, value)
+        return property(fget=fget, fset=fset)
 
     def confirm(self, value):
         return value
@@ -69,11 +70,12 @@ class SecretNameMeta(type):
 
     def __new__(mcs, name, bases, attrs):
         _props = []
-        for key in attrs:
+        keys = [k for k in attrs]
+        for key in keys:
             if isinstance(attrs[key], SpecialProp):
                 _props += [key]
                 attrs[key].name = key
-                attrs[key]._set_secret_name()
+                attrs[key] = attrs[key]._set_secret_name()
 
         attrs['_props'] = _props
 
@@ -93,11 +95,11 @@ class WithSpecialProps(with_metaclass(SecretNameMeta, object)):
 
 class PyYYCPresentation(WithSpecialProps):
 
-    presenter = StrProp('_presenter')
-    topic = StrProp('_topic')
-    time_limit = FloatProp('_time_limit')
-    nslides = IntProp('_nslides')
-    slide_color = ColorProp('_slide_color')
+    presenter = StrProp()
+    topic = StrProp()
+    time_limit = FloatProp()
+    nslides = IntProp()
+    slide_color = ColorProp()
 
     def summarize(self):
         print('Pythonista {name} talking about {topic}.'.format(
@@ -115,11 +117,11 @@ class PyYYCPresentation(WithSpecialProps):
 
 class YYCjsPresentation(WithSpecialProps):
 
-    presenter = StrProp('_presenter')
-    topic = StrProp('_topic')
-    time_limit = FloatProp('_time_limit')
-    nslides = IntProp('_nslides')
-    slide_color = ColorProp('_slide_color')
+    presenter = StrProp()
+    topic = StrProp()
+    time_limit = FloatProp()
+    nslides = IntProp()
+    slide_color = ColorProp()
 
     def summarize(self):
         print('JavaScripter {name} talking about {topic}.'.format(
@@ -136,8 +138,8 @@ class YYCjsPresentation(WithSpecialProps):
 
 class FreeSpiritPresentation(WithSpecialProps):
 
-    presenter = StrProp('_presenter')
-    favorite_color = ColorProp('_favorite_color')
+    presenter = StrProp()
+    favorite_color = ColorProp()
 
     def summarize(self):
         print('{name} loves {topic}.'.format(

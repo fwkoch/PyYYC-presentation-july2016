@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 
 from builtins import super
 from six import string_types
-from future.utils import with_metaclass
+from six import with_metaclass
 
 
 class SpecialProp(object):
