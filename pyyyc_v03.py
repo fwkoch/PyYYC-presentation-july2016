@@ -153,7 +153,7 @@ class FreeSpiritPresentation(BasePresentation):
     """
 
     def __init__(self, presenter, favorite_color):
-        super().__init__(self, presenter, None, None, None, None)
+        self.presenter = presenter
         self.favorite_color = favorite_color
 
     @property
@@ -181,4 +181,3 @@ class FreeSpiritPresentation(BasePresentation):
             name=self.presenter,
             topic=self.favorite_color
         ))
-

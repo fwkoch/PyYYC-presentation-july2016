@@ -5,25 +5,33 @@ from __future__ import unicode_literals
 
 from builtins import super
 from six import string_types
+from six import with_metaclass
 
 
 class SpecialProp(object):
     """ class SpcecialProp
 
     This class is used for assigning properties. It validates the
-    property, then sets it to a secret name.
-
-    Input:
-        secret_name - the name where the actual property value is assigned
+    property, then sets it to a secret name, defined in a metaclass.
     """
 
-    def __init__(self, secret_name):
-        self.secret_name = secret_name
+    secret_name = None
+
+    def __init__(self, doc):
+        self.doc = doc
 
     def __get__(self, instance, owner):
+        if self.secret_name is None:
+            raise ValueError('secret_name not set!')
+        if not hasattr(instance, self.secret_name):
+            raise ValueError('{}: property not set'.format(
+                self.secret_name[1:]
+            ))
         return getattr(instance, self.secret_name)
 
     def __set__(self, instance, value):
+        if self.secret_name is None:
+            raise ValueError('secret_name not set!')
         value = self.confirm(value)
         setattr(instance, self.secret_name, value)
 
@@ -35,11 +43,6 @@ class SpecialProp(object):
 
 
 class ColorProp(SpecialProp):
-    """ class ColorProp
-
-    This SpecialProp validates colors
-    """
-
     def confirm(self, value):
         if value == 'red':
             value = [255, 0, 0]
@@ -58,11 +61,6 @@ class ColorProp(SpecialProp):
 
 
 class FloatProp(SpecialProp):
-    """ class FloatProp
-
-    This SpecialProp validates floats
-    """
-
     def confirm(self, value):
         if not isinstance(value, float):
             raise ValueError('{}: must be float'.format(value))
@@ -70,11 +68,6 @@ class FloatProp(SpecialProp):
 
 
 class IntProp(SpecialProp):
-    """ class IntProp
-
-    This SpecialProp validates integers
-    """
-
     def confirm(self, value):
         if not isinstance(value, int):
             raise ValueError('{}: must be int'.format(value))
@@ -82,75 +75,80 @@ class IntProp(SpecialProp):
 
 
 class StrProp(SpecialProp):
-    """ class StrProp
-
-    This SpecialProp validates strings
-    """
-
     def confirm(self, value):
         if not isinstance(value, string_types):
             raise ValueError('{}: must be string'.format(value))
         return value
 
 
-class ReallyBasicPresentation(object):
-    """ class ReallyBasicPresentation
+_REGISTRY = {}
 
-    This class contains info about really basic presentations.
 
-    Inputs:
-        presenter    - All presentations have presenters
+class SecretNameMeta(type):
+    """ metaclass SecretNameMeta
+
+    This metaclass manipulate its classes by creating a _props
+    attribute that doesn't exist in the original definition and
+    setting the secret_name of all the SpecialProp attributes
     """
 
-    presenter = StrProp('_presenter')
+    def __new__(mcs, name, bases, attrs):
+        _props = []
+        keys = [k for k in attrs]
+        for key in keys:
+            if isinstance(attrs[key], SpecialProp) and key == 'props':
+                raise ValueError('Cannot have a SpecialProp named \'props\'')
+            if isinstance(attrs[key], SpecialProp):
+                _props += [key]
+                attrs[key].secret_name = '_' + key
 
-    def __init__(self, presenter):
-        self.presenter = presenter
+        attrs['_props'] = _props
+
+        if '__doc__' not in attrs:
+            attrs['__doc__'] = ''
+
+        attrs['__doc__'] += '    \n\nProperties:\n'
+        for prop in _props:
+            attrs['__doc__'] += '        {prop} - {doc}\n'.format(
+                prop=prop,
+                doc=attrs[prop].doc
+            )
+
+        new_class = super().__new__(mcs, name, bases, attrs)
+        _REGISTRY[name] = new_class
+
+        return new_class
 
 
-class NormalPresentation(ReallyBasicPresentation):
-    """ class NormalPresentation
+class WithSpecialProps(with_metaclass(SecretNameMeta, object)):
+    """ class WithSpecialProps
 
-    This class contains some more normal presentation stuff.
-
-    Inputs:
-        topic        - Most normal presentations have a topic
-        time_limit   - and a time limit
+    This class contains the __init__ function to set SpecialProp
+    properties through keyword arguments
     """
 
-    topic = StrProp('_topic')
-    time_limit = FloatProp('_time_limit')
-
-    def __init__(self, presenter, topic, time_limit):
-        super().__init__(presenter)
-        self.topic = topic
-        self.time_limit = time_limit
-
-
-class PowerpointPresentation(NormalPresentation):
-    """ class PowerpointPresentation
-
-    This class contains some additional ppt stuff.
-
-    Inputs:
-        nslides      - Number of slides
-        slide_color  - Background color, rgb
-    """
-
-    nslides = IntProp('_nslides')
-    slide_color = ColorProp('_slide_color')
-
-    def __init__(self, presenter, topic, time_limit, nslides, slide_color):
-        super().__init__(presenter, topic, time_limit)
-        self.nslides = nslides
-        self.slide_color = slide_color
+    def __init__(self, **kwargs):
+        for key in kwargs:
+            if key[0] == '_':
+                raise KeyError('Cannot set private property: {}'.format(key))
+            if key not in self._props:
+                raise KeyError('Property is unavailable: {}'.format(key))
+            setattr(self, key, kwargs[key])
 
 
-class PyYYCPresentation(PowerpointPresentation):
+class PyYYCPresentation(WithSpecialProps):
     """ class PyYYCPresentation
 
-    This class generates some really useful info about PyYYC presentations.
+    This class contains info about basic presentations at the
+    PyYYC meetup. It generates some really useful summary info
+    about the presentation.
     """
+
+    presenter = StrProp('Name of the presenter')
+    topic = StrProp('Brief explanation of the topic')
+    time_limit = FloatProp('Time limit of the presentation in minutes')
+    nslides = IntProp('Number of powerpoint slides')
+    slide_color = ColorProp('RGB color of the slides')
 
     def summarize(self):
         """Print a short description of the presentation. Useful for
@@ -171,11 +169,19 @@ class PyYYCPresentation(PowerpointPresentation):
                any([rgb < 50 for rgb in self.slide_color]))
 
 
-class YYCjsPresentation(PowerpointPresentation):
+class YYCjsPresentation(WithSpecialProps):
     """ class YYCjsPresentation
 
-    This class generates some really useful info about YYCjs presentations.
+    This class contains info about basic presentations at the
+    YYCjs meetup. It generates some really useful summary info
+    about the presentation.
     """
+
+    presenter = StrProp('Name of the presenter')
+    topic = StrProp('Brief explanation of the topic')
+    time_limit = FloatProp('Time limit of the presentation in minutes')
+    nslides = IntProp('Number of powerpoint slides')
+    slide_color = ColorProp('RGB color of the slides')
 
     def summarize(self):
         """Print a short description of the presentation. Useful for
@@ -195,20 +201,14 @@ class YYCjsPresentation(PowerpointPresentation):
         return False
 
 
-class FreeSpiritPresentation(ReallyBasicPresentation):
+class FreeSpiritPresentation(WithSpecialProps):
     """ class FreeSpiritPresentation
 
-    These presentations are just silly.
-
-    Inputs:
-        favorite_color - Presenter's favorite color
+    This class contains info about basic free-spirit presentations
     """
 
-    favorite_color = ColorProp('_favorite_color')
-
-    def __init__(self, presenter, favorite_color):
-        super().__init__(self, presenter)
-        self.favorite_color = favorite_color
+    presenter = StrProp('Name of presenter')
+    favorite_color = ColorProp('Favorite color of presenter')
 
     def summarize(self):
         """Print a short description of the presentation. Useful for

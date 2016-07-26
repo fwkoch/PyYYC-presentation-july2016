@@ -12,16 +12,14 @@ class SpecialProp(object):
     """ class SpcecialProp
 
     This class is used for assigning properties. It validates the
-    property, then sets it to a secret name.
-
-    Input:
-        secret_name - the name where the actual property value is assigned
+    property, then sets it to a secret name, defined in a metaclass.
     """
 
-    def __init__(self, secret_name):
-        self.secret_name = secret_name
+    secret_name = None
 
     def __get__(self, instance, owner):
+        if self.secret_name is None:
+            raise ValueError('secret_name not set!')
         if not hasattr(instance, self.secret_name):
             raise ValueError('{}: property not set'.format(
                 self.secret_name[1:]
@@ -29,6 +27,8 @@ class SpecialProp(object):
         return getattr(instance, self.secret_name)
 
     def __set__(self, instance, value):
+        if self.secret_name is None:
+            raise ValueError('secret_name not set!')
         value = self.confirm(value)
         setattr(instance, self.secret_name, value)
 
@@ -81,15 +81,22 @@ class StrProp(SpecialProp):
 class SecretNameMeta(type):
     """ metaclass SecretNameMeta
 
-    For now, this metaclass only does some printing to demonstrate
-    how it works.
+    This metaclass manipulate its classes by creating a _props
+    attribute that doesn't exist in the original definition and
+    setting the secret_name of all the SpecialProp attributes
     """
 
     def __new__(mcs, name, bases, attrs):
-        print('mcs: {}'.format(mcs))
-        print('name: {}'.format(name))
-        print('bases: {}'.format(bases))
-        print('attrs: {}'.format(attrs))
+        _props = []
+        keys = [k for k in attrs]
+        for key in keys:
+            if isinstance(attrs[key], SpecialProp) and key == 'props':
+                raise ValueError('Cannot have a SpecialProp named \'props\'')
+            if isinstance(attrs[key], SpecialProp):
+                _props += [key]
+                attrs[key].secret_name = '_' + key
+
+        attrs['_props'] = _props
 
         return super().__new__(mcs, name, bases, attrs)
 
@@ -105,10 +112,8 @@ class WithSpecialProps(with_metaclass(SecretNameMeta, object)):
         for key in kwargs:
             if key[0] == '_':
                 raise KeyError('Cannot set private property: {}'.format(key))
-            if not hasattr(self, key):
-                raise KeyError('Attribute does not exist: {}'.format(key))
-            if not isinstance(self.__class__.__dict__[key], SpecialProp):
-                raise KeyError('Attribute not a property: {}'.format(key))
+            if key not in self._props:
+                raise KeyError('Property is unavailable: {}'.format(key))
             setattr(self, key, kwargs[key])
 
 
@@ -128,11 +133,11 @@ class PyYYCPresentation(WithSpecialProps):
         slide_color - RGB color of all the slides
     """
 
-    presenter = StrProp('_presenter')
-    topic = StrProp('_topic')
-    time_limit = FloatProp('_time_limit')
-    nslides = IntProp('_nslides')
-    slide_color = ColorProp('_slide_color')
+    presenter = StrProp()
+    topic = StrProp()
+    time_limit = FloatProp()
+    nslides = IntProp()
+    slide_color = ColorProp()
 
     def summarize(self):
         """Print a short description of the presentation. Useful for
@@ -151,4 +156,3 @@ class PyYYCPresentation(WithSpecialProps):
         """Determines if the slides will cause eye strain"""
         return(any([rgb > 200 for rgb in self.slide_color]) and
                any([rgb < 50 for rgb in self.slide_color]))
-

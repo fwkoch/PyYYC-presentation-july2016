@@ -8,6 +8,14 @@ from six import string_types
 
 
 class SpecialProp(object):
+    """ class SpcecialProp
+
+    This class is used for assigning properties. It validates the
+    property, then sets it to a secret name.
+
+    Input:
+        secret_name - the name where the actual property value is assigned
+    """
 
     def __init__(self, secret_name):
         self.secret_name = secret_name
@@ -20,11 +28,13 @@ class SpecialProp(object):
         setattr(instance, self.secret_name, value)
 
     def confirm(self, value):
+        """ This function validates value. It is overwritten by different
+        subclasses of SpecialProp
+        """
         return value
 
 
 class ColorProp(SpecialProp):
-
     def confirm(self, value):
         if value == 'red':
             value = [255, 0, 0]
@@ -43,7 +53,6 @@ class ColorProp(SpecialProp):
 
 
 class FloatProp(SpecialProp):
-
     def confirm(self, value):
         if not isinstance(value, float):
             raise ValueError('{}: must be float'.format(value))
@@ -51,7 +60,6 @@ class FloatProp(SpecialProp):
 
 
 class IntProp(SpecialProp):
-
     def confirm(self, value):
         if not isinstance(value, int):
             raise ValueError('{}: must be int'.format(value))
@@ -59,7 +67,6 @@ class IntProp(SpecialProp):
 
 
 class StrProp(SpecialProp):
-
     def confirm(self, value):
         if not isinstance(value, string_types):
             raise ValueError('{}: must be string'.format(value))
@@ -67,6 +74,20 @@ class StrProp(SpecialProp):
 
 
 class PyYYCPresentation(object):
+    """ class PyYYCPresentation
+
+    This class contains info about basic presentations at the
+    PyYYC meetup. It generates some really useful summary info
+    about the presentation.
+
+    Inputs:
+        presenter   - Name of the presenter
+        topic       - Brief explanation of the topic
+        time_limit  - Time limit of the presentation
+        nslides     - Number of slides (because all presentations
+                      have slides!)
+        slide_color - RGB color of all the slides
+    """
 
     presenter = StrProp('_presenter')
     topic = StrProp('_topic')
@@ -82,20 +103,39 @@ class PyYYCPresentation(object):
         self.slide_color = slide_color
 
     def summarize(self):
+        """Print a short description of the presentation. Useful for
+        press junkets.
+        """
         print('Pythonista {name} talking about {topic}.'.format(
             name=self.presenter,
             topic=self.topic
         ))
 
     def time_per_slide(self):
+        """Time available for each slide"""
         return self.time_limit / self.nslides
 
     def strains_eyes(self):
+        """Determines if the slides will cause eye strain"""
         return(any([rgb > 200 for rgb in self.slide_color]) and
                any([rgb < 50 for rgb in self.slide_color]))
 
 
 class YYCjsPresentation(object):
+    """ class YYCjsPresentation
+
+    This class contains info about basic presentations at the
+    YYCjs meetup. It generates some really useful summary info
+    about the presentation.
+
+    Inputs:
+        presenter   - Name of the presenter
+        topic       - Brief explanation of the topic
+        time_limit  - Time limit of the presentation
+        nslides     - Number of slides (because all presentations
+                      have slides!)
+        slide_color - RGB color of all the slides
+    """
 
     presenter = StrProp('_presenter')
     topic = StrProp('_topic')
@@ -111,19 +151,32 @@ class YYCjsPresentation(object):
         self.slide_color = slide_color
 
     def summarize(self):
+        """Print a short description of the presentation. Useful for
+        press junkets.
+        """
         print('JavaScripter {name} talking about {topic}.'.format(
             name=self.presenter,
             topic=self.topic
         ))
 
     def time_per_slide(self):
+        """Time available for each slide"""
         return self.time_limit / self.nslides
 
     def strains_eyes(self):
+        """Determines if the slides will cause eye strain"""
         return False
 
 
 class FreeSpiritPresentation(object):
+    """ class FreeSpiritPresentation
+
+    This class contains info about basic free-spirit presentations
+
+    Inputs:
+        presenter      - Name of the presenter
+        favorite_color - Favorite RGB color of presenter
+    """
 
     presenter = StrProp('_presenter')
     favorite_color = ColorProp('_favorite_color')
@@ -133,6 +186,9 @@ class FreeSpiritPresentation(object):
         self.favorite_color = favorite_color
 
     def summarize(self):
+        """Print a short description of the presentation. Useful for
+        press junkets.
+        """
         print('{name} loves {topic}.'.format(
             name=self.presenter,
             topic=self.favorite_color

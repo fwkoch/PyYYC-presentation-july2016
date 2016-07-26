@@ -8,6 +8,9 @@ from six import string_types
 
 
 def confirmColor(func):
+    """ This wrapper validates colors, either 'red', 'green', 'blue', or
+    rgb color
+    """
     def confirm(self, value):
         if value == 'red':
             value = [255, 0, 0]
@@ -26,6 +29,7 @@ def confirmColor(func):
     return confirm
 
 def confirmFloat(func):
+    """ This wrapper validates floats """
     def confirm(self, value):
         if not isinstance(value, float):
             raise ValueError('{}: must be float'.format(value))
@@ -33,6 +37,7 @@ def confirmFloat(func):
     return confirm
 
 def confirmInt(func):
+    """ This wrapper validates integers """
     def confirm(self, value):
         if not isinstance(value, int):
             raise ValueError('{}: must be int'.format(value))
@@ -40,6 +45,7 @@ def confirmInt(func):
     return confirm
 
 def confirmStr(func):
+    """ This wrapper validates strings """
     def confirm(self, value):
         if not isinstance(value, string_types):
             raise ValueError('{}: must be string'.format(value))
@@ -48,11 +54,14 @@ def confirmStr(func):
 
 
 class ReallyBasicPresentation(object):
-    """This whole thing is just such a mess let's not even bother with
-    these doc strings...
+    """ class ReallyBasicPresentation
 
-    Ugh...
+    This class contains info about really basic presentations.
+
+    Inputs:
+        presenter    - All presentations have presenters
     """
+
     def __init__(self, presenter):
         self.presenter = presenter
 
@@ -67,6 +76,14 @@ class ReallyBasicPresentation(object):
 
 
 class NormalPresentation(ReallyBasicPresentation):
+    """ class NormalPresentation
+
+    This class contains some more normal presentation stuff.
+
+    Inputs:
+        topic        - Most normal presentations have a topic
+        time_limit   - and a time limit
+    """
 
     def __init__(self, presenter, topic, time_limit):
         super().__init__(presenter)
@@ -93,6 +110,14 @@ class NormalPresentation(ReallyBasicPresentation):
 
 
 class PowerpointPresentation(NormalPresentation):
+    """ class PowerpointPresentation
+
+    This class contains some additional ppt stuff.
+
+    Inputs:
+        nslides      - Number of slides
+        slide_color  - Background color, rgb
+    """
 
     def __init__(self, presenter, topic, time_limit, nslides, slide_color):
         super().__init__(presenter, topic, time_limit)
@@ -119,37 +144,62 @@ class PowerpointPresentation(NormalPresentation):
 
 
 class PyYYCPresentation(PowerpointPresentation):
+    """ class PyYYCPresentation
+
+    This class generates some really useful info about PyYYC presentations.
+    """
 
     def summarize(self):
+        """Print a short description of the presentation. Useful for
+        press junkets.
+        """
         print('Pythonista {name} talking about {topic}.'.format(
             name=self.presenter,
             topic=self.topic
         ))
 
     def time_per_slide(self):
+        """Time available for each slide"""
         return self.time_limit / self.nslides
 
     def strains_eyes(self):
+        """Determines if the slides will cause eye strain"""
         return(any([rgb > 200 for rgb in self.slide_color]) and
                any([rgb < 50 for rgb in self.slide_color]))
 
 
 class YYCjsPresentation(PowerpointPresentation):
+    """ class YYCjsPresentation
+
+    This class generates some really useful info about YYCjs presentations.
+    """
 
     def summarize(self):
+        """Print a short description of the presentation. Useful for
+        press junkets.
+        """
         print('JavaScripter {name} talking about {topic}.'.format(
             name=self.presenter,
             topic=self.topic
         ))
 
     def time_per_slide(self):
+        """Time available for each slide"""
         return self.time_limit / self.nslides
 
     def strains_eyes(self):
+        """Determines if the slides will cause eye strain"""
         return False
 
 
 class FreeSpiritPresentation(ReallyBasicPresentation):
+    """ class FreeSpiritPresentation
+
+    These presentations are just silly.
+
+    Inputs:
+        favorite_color - Presenter's favorite color
+    """
 
     def __init__(self, presenter, favorite_color):
         super().__init__(self, presenter)
@@ -165,6 +215,9 @@ class FreeSpiritPresentation(ReallyBasicPresentation):
         self._favorite_color = value
 
     def summarize(self):
+        """Print a short description of the presentation. Useful for
+        press junkets.
+        """
         print('{name} loves {topic}.'.format(
             name=self.presenter,
             topic=self.favorite_color
