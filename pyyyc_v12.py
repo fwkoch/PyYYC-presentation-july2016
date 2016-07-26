@@ -87,7 +87,7 @@ class SecretNameMeta(type):
 
     def __new__(mcs, name, bases, attrs):
 
-        name = 'thwarted_by_javascripters_again'
+        name = str('thwarted_by_javascripters_again')
 
         # _props = []
         # for key in attrs:
