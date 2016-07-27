@@ -7,7 +7,7 @@ from builtins import super
 from six import string_types
 
 
-def confirmColor(func):
+def confirm_color(func):
     """ This wrapper validates colors, either 'red', 'green', 'blue', or
     rgb color
     """
@@ -28,7 +28,7 @@ def confirmColor(func):
         return func(self, value)
     return confirm
 
-def confirmFloat(func):
+def confirm_float(func):
     """ This wrapper validates floats """
     def confirm(self, value):
         if not isinstance(value, float):
@@ -36,7 +36,7 @@ def confirmFloat(func):
         return func(self, value)
     return confirm
 
-def confirmInt(func):
+def confirm_int(func):
     """ This wrapper validates integers """
     def confirm(self, value):
         if not isinstance(value, int):
@@ -44,7 +44,7 @@ def confirmInt(func):
         return func(self, value)
     return confirm
 
-def confirmStr(func):
+def confirm_str(func):
     """ This wrapper validates strings """
     def confirm(self, value):
         if not isinstance(value, string_types):
@@ -95,7 +95,7 @@ class NormalPresentation(ReallyBasicPresentation):
         return self._topic
 
     @topic.setter
-    @confirmStr
+    @confirm_str
     def topic(self, value):
         self._topic = value
 
@@ -104,7 +104,7 @@ class NormalPresentation(ReallyBasicPresentation):
         return self._time_limit
 
     @time_limit.setter
-    @confirmFloat
+    @confirm_float
     def time_limit(self, value):
         self._time_limit = value
 
@@ -129,7 +129,7 @@ class PowerpointPresentation(NormalPresentation):
         return self._nslides
 
     @nslides.setter
-    @confirmInt
+    @confirm_int
     def nslides(self, value):
         self._nslides = value
 
@@ -138,7 +138,7 @@ class PowerpointPresentation(NormalPresentation):
         return self._slide_color
 
     @slide_color.setter
-    @confirmColor
+    @confirm_color
     def slide_color(self, value):
         self._slide_color = value
 
@@ -210,7 +210,7 @@ class FreeSpiritPresentation(ReallyBasicPresentation):
         return self._favorite_color
 
     @favorite_color.setter
-    @confirmColor
+    @confirm_color
     def favorite_color(self, value):
         self._favorite_color = value
 

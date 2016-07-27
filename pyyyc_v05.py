@@ -26,19 +26,19 @@ def confirm_color(value):
     #         raise ValueError('{}: rgb must be 0-255'.format(value))
     return value
 
-def confirmFloat(value):
+def confirm_float(value):
     """ This function validates floats """
     if not isinstance(value, float):
         raise ValueError('{}: must be float'.format(value))
     return value
 
-def confirmInt(value):
+def confirm_int(value):
     """ This function validates integers """
     if not isinstance(value, int):
         raise ValueError('{}: must be int'.format(value))
     return value
 
-def confirmStr(value):
+def confirm_str(value):
     """ This function validates strings """
     if not isinstance(value, string_types):
         raise ValueError('{}: must be string'.format(value))
@@ -63,7 +63,7 @@ class ReallyBasicPresentation(object):
 
     @presenter.setter
     def presenter(self, value):
-        self._presenter = confirmStr(value)
+        self._presenter = confirm_str(value)
 
 
 class NormalPresentation(ReallyBasicPresentation):
@@ -87,7 +87,7 @@ class NormalPresentation(ReallyBasicPresentation):
 
     @topic.setter
     def topic(self, value):
-        self._topic = confirmStr(value)
+        self._topic = confirm_str(value)
 
     @property
     def time_limit(self):
@@ -95,7 +95,7 @@ class NormalPresentation(ReallyBasicPresentation):
 
     @time_limit.setter
     def time_limit(self, value):
-        self._time_limit = confirmFloat(value)
+        self._time_limit = confirm_float(value)
 
 
 class PowerpointPresentation(NormalPresentation):
@@ -119,7 +119,7 @@ class PowerpointPresentation(NormalPresentation):
 
     @nslides.setter
     def nslides(self, value):
-        self._nslides = confirmInt(value)
+        self._nslides = confirm_int(value)
 
     @property
     def slide_color(self):
@@ -127,7 +127,7 @@ class PowerpointPresentation(NormalPresentation):
 
     @slide_color.setter
     def slide_color(self, value):
-        self._slide_color = confirmColor(value)
+        self._slide_color = confirm_color(value)
 
 
 class PyYYCPresentation(PowerpointPresentation):
@@ -198,7 +198,7 @@ class FreeSpiritPresentation(ReallyBasicPresentation):
 
     @favorite_color.setter
     def favorite_color(self, value):
-        self._favorite_color = confirmColor(value)
+        self._favorite_color = confirm_color(value)
 
     def summarize(self):
         """Print a short description of the presentation. Useful for
