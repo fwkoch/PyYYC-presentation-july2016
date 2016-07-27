@@ -105,7 +105,7 @@ class PyYYCPresentation(object):
             #     raise KeyError('Cannot set private property: {}'.format(key))
             # if not isinstance(kwargs[key], SpecialProp):
             #     raise KeyError('Property not available: {}'.format(key))
-            # if not hasattr(self, key):
+            # if key not in self.__class__.__dict__:
             #     raise KeyError('Attribute does not exist: {}'.format(key))
             # if not isinstance(self.__class__.__dict__[key], SpecialProp):
             #     raise KeyError('Attribute not a property: {}'.format(key))
